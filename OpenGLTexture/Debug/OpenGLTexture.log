@@ -1,0 +1,8 @@
+﻿  stdafx.cpp
+  TargaImage.cpp
+  OpenGLTexture.cpp
+  HiResTimer.cpp
+  CGfxOpenGL.cpp
+  Generating Code...
+  OpenGLTexture.vcxproj -> D:\VS_Workspace\OpenGLTexture\Debug\OpenGLTexture.exe
+  OpenGLTexture.vcxproj -> D:\VS_Workspace\OpenGLTexture\Debug\OpenGLTexture.pdb (Full PDB)
