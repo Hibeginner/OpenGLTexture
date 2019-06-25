@@ -1,6 +1,18 @@
 #ifndef _TARGA_LIB
 #define _TARGA_LIB
 
+struct rgba_t {
+	unsigned char r;
+	unsigned char g ;
+	unsigned char b;
+	unsigned char a;
+};
+struct rgb_t {
+	unsigned char r;
+	unsigned char g;
+	unsigned char b;
+};
+
 enum TGATypes
 {
 	TGA_NODATA = 0,
@@ -48,7 +60,7 @@ private:
 	unsigned short  m_height;
 	unsigned long   m_imageSize;//图的大小 宽x高x（3或4）
 	
-	//void SwapRedBlue();//因为tga是BGR（A）格式。但OpenGL习惯使用RGB（A），所以做个交换
+	void SwapRedBlue();//因为tga是BGR（A）格式。但OpenGL习惯使用RGB（A），所以做个交换
 public:
 	CTargaImage();
 	virtual ~CTargaImage();
@@ -63,8 +75,8 @@ public:
 		return m_imageDataFormat;
 	}
 
-	//bool ConvertRGBAToRGB();//去掉alpha通道
-	//bool ConvertRGBToRGBA(const unsigned char alphaValue);
+	bool ConvertRGBAToRGB();//去掉alpha通道
+	bool ConvertRGBToRGBA(const unsigned char alphaValue);
 
 	unsigned char * GetImage() {
 		return m_pImageData;
@@ -73,7 +85,7 @@ public:
 	bool Load(const char* fileName);
 	void Release();//释放某些内存。比如图的内容。
 
-	//bool FlipVertical();//图的第一个像素可能是左上角、左下角、右上、右下角，所以要翻转成OpenGL的格式（OpenGL是读入的第一个像素，画在左下角）
+	bool FlipVertical();//图的第一个像素可能是左上角、左下角、右上、右下角，所以要翻转成OpenGL的格式（OpenGL是读入的第一个像素，画在左下角）
 };
 
 #endif

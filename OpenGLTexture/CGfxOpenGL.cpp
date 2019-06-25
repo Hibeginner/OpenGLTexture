@@ -95,7 +95,7 @@ bool CGfxOpenGL::Init() {
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 
 	m_tga = new CTargaImage();
-	if (!m_tga->Load("")) {
+	if (!m_tga->Load("test.tga")) {
 		return false;
 	}
 
@@ -224,5 +224,6 @@ void CGfxOpenGL::Render() {
 	//glBitmap(32,32,0,0,0,, bigLetterF);
 
 	glWindowPos2i(400, 200);
-	glDrawPixels(m_tga->GetWidth(), m_tga->GetHeight(), GL_BGRA_EXT, GL_UNSIGNED_BYTE, m_tga->GetImage());
+	//glDrawPixels(m_tga->GetWidth(), m_tga->GetHeight(), GL_BGRA_EXT, GL_UNSIGNED_BYTE, m_tga->GetImage());
+	glDrawPixels(m_tga->GetWidth(), m_tga->GetHeight(), GL_RGBA, GL_UNSIGNED_BYTE, m_tga->GetImage());
 }

@@ -172,6 +172,7 @@
   <ItemGroup>
     <Image Include="OpenGLTexture.ico" />
     <Image Include="small.ico" />
+    <Image Include="test.tga" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
