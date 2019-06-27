@@ -16,6 +16,7 @@ private:
 	float rotateAngle;
 
 	CTargaImage * m_tga;
+	unsigned int m_textureObject;//OpenGL的纹理对象
 
 public:
 	CGfxOpenGL();

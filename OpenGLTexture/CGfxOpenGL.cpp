@@ -99,51 +99,64 @@ bool CGfxOpenGL::Init() {
 		return false;
 	}
 
+	glEnable(GL_TEXTURE_2D);
+
+	glGenTextures(1, &m_textureObject);//获得纹理对象名称
+	glBindTexture(GL_TEXTURE_2D, m_textureObject);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
+		m_tga->GetWidth(),
+		m_tga->GetHeight(), 0,
+		GL_RGBA, GL_UNSIGNED_BYTE,
+		m_tga->GetImage());
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);//放大过滤器，点采样。图片放大时，像素使用周边最近的
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);//缩小过滤器，线性采样。图片放大时，像素使用周边的插值
+
 	rotateAngle = 0;
 
-	glEnable(GL_DEPTH_TEST);//深度测试，近的挡住远的
-	glDepthFunc(GL_LEQUAL);//深度测试小于等于算法。只有后者距离小于等于前者，就显示后者。距离摄像机的距离越小，越优先显示
+	//glEnable(GL_DEPTH_TEST);//深度测试，近的挡住远的
+	//glDepthFunc(GL_LEQUAL);//深度测试小于等于算法。只有后者距离小于等于前者，就显示后者。距离摄像机的距离越小，越优先显示
 
-	glEnable(GL_NORMALIZE);//法线标准化处理
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	glEnable(GL_LIGHTING);//启用光照。还需要激活灯光
-	
-	GLfloat light_ambient[4] = { 0.3f, 0.3f, 0.3f, 1.0f};//环境光 0.3弱
-	GLfloat light_diffuse[4] = { 1.0f, 1.0f, 1.0f, 1.0f };//漫反射光
-	GLfloat light_specular[4] = { 1.0f, 1.0f, 1.0f, 1.0f };//镜面反射光
+	//glEnable(GL_NORMALIZE);//法线标准化处理
+	////glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glEnable(GL_LIGHTING);//启用光照。还需要激活灯光
+	//
+	//GLfloat light_ambient[4] = { 0.3f, 0.3f, 0.3f, 1.0f};//环境光 0.3弱
+	//GLfloat light_diffuse[4] = { 1.0f, 1.0f, 1.0f, 1.0f };//漫反射光
+	//GLfloat light_specular[4] = { 1.0f, 1.0f, 1.0f, 1.0f };//镜面反射光
 
-	glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);//定义灯光的属性
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
-	glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
+	//glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);//定义灯光的属性
+	//glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
+	//glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
 
-	GLfloat lightPos[4] = { 0,100,100,1 };//默认0,0,1的位置。第四个参数为1，为定点光。0平行光
-	glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
+	//GLfloat lightPos[4] = { 0,100,100,1 };//默认0,0,1的位置。第四个参数为1，为定点光。0平行光
+	//glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
 
-	glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.0f);//设置衰减公式系数
-	glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.01f);//设置衰减公式系数
-	glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.0f);//设置衰减公式系数
+	//glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.0f);//设置衰减公式系数
+	//glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.01f);//设置衰减公式系数
+	//glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.0f);//设置衰减公式系数
 
-	glEnable(GL_LIGHT0);//激活灯光
+	//glEnable(GL_LIGHT0);//激活灯光
 
 
-	glLightfv(GL_LIGHT1, GL_AMBIENT, light_ambient);
-	glLightfv(GL_LIGHT1, GL_DIFFUSE, light_diffuse);
-	glLightfv(GL_LIGHT1, GL_SPECULAR, light_specular);
+	//glLightfv(GL_LIGHT1, GL_AMBIENT, light_ambient);
+	//glLightfv(GL_LIGHT1, GL_DIFFUSE, light_diffuse);
+	//glLightfv(GL_LIGHT1, GL_SPECULAR, light_specular);
 
-	
-	glLightfv(GL_LIGHT1, GL_POSITION, light1_Pos);//默认0,0,1的位置。第四个参数为1，为定点光。0平行光。聚光灯是一个特殊的定点光
-	
-	glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, spot_dir);//设置聚光灯方向
+	//
+	//glLightfv(GL_LIGHT1, GL_POSITION, light1_Pos);//默认0,0,1的位置。第四个参数为1，为定点光。0平行光。聚光灯是一个特殊的定点光
+	//
+	//glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, spot_dir);//设置聚光灯方向
 
-	glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, 7.5f);//设置聚光灯角度。圆锥角横截面角度的一半
-	glLightf(GL_LIGHT1, GL_SPOT_EXPONENT, 128);//聚光灯强度，中间强，周边弱
+	//glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, 7.5f);//设置聚光灯角度。圆锥角横截面角度的一半
+	//glLightf(GL_LIGHT1, GL_SPOT_EXPONENT, 128);//聚光灯强度，中间强，周边弱
 
-	glEnable(GL_LIGHT1);//把这个做成聚光灯
+	//glEnable(GL_LIGHT1);//把这个做成聚光灯
 
 	return true;
 }
 
 bool CGfxOpenGL::Shutdown() {
+	glDeleteTextures(1, &m_textureObject);//清理OpenGL里的纹理
 	m_tga->Release();
 	delete m_tga;
 	return true;
@@ -214,7 +227,7 @@ void CGfxOpenGL::Render() {
 	glLoadIdentity();
 
 	//gluLookAt(1.0f, 1.5f, 5.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-	gluLookAt(0.0f, 0.0f, 2.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+	gluLookAt(0.0f, 0.0f, 8.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
 	glColor3f(1, 1, 1);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);//4字节解包对齐。4位一组开始读。告诉OpenGL，每一行能够被4整除的位置，去取数据。OpenGL会忽略补的字节
@@ -226,4 +239,20 @@ void CGfxOpenGL::Render() {
 	glWindowPos2i(400, 200);
 	//glDrawPixels(m_tga->GetWidth(), m_tga->GetHeight(), GL_BGRA_EXT, GL_UNSIGNED_BYTE, m_tga->GetImage());
 	glDrawPixels(m_tga->GetWidth(), m_tga->GetHeight(), GL_RGBA, GL_UNSIGNED_BYTE, m_tga->GetImage());
+
+
+	glBindTexture(GL_TEXTURE_2D, m_textureObject);
+	glBegin(GL_QUADS);
+		glTexCoord2f(0.0f, 0.0f);
+		glVertex3f(-1.0f, -1.0f, 1.0f);
+
+		glTexCoord2f(1.0f, 0.0f);
+		glVertex3f( 1.0f, -1.0f, 1.0f);
+
+		glTexCoord2f(1.0f, 1.0f);
+		glVertex3f(1.0f,  1.0f, 1.0f);
+
+		glTexCoord2f(0.0f, 1.0f);
+		glVertex3f(-1.0f, 1.0f, 1.0f);
+	glEnd();
 }
