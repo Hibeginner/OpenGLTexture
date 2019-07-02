@@ -1,4 +1,5 @@
 ﻿#include "stdafx.h"
+#include <cmath>
 
 /*
 (x, y, z)物体的顶点坐标经过
@@ -19,7 +20,7 @@ void ShowFloat(float f) {
 }
 
 CGfxOpenGL::CGfxOpenGL() {
-
+	cameraX = cameraY = cameraZ = 0.0f;
 }
 
 CGfxOpenGL::~CGfxOpenGL() {
@@ -99,19 +100,65 @@ bool CGfxOpenGL::Init() {
 		return false;
 	}
 
-	glEnable(GL_TEXTURE_2D);
+	//static float plane_s[4] = {1,0,0,0};//平面法向量,第四个参数是面的位置
+	//static float plane_t[4] = { 0,1,0,0 };
+	//glEnable(GL_TEXTURE_GEN_S);//让OpenGL自动生成纹理坐标
+	//glEnable(GL_TEXTURE_GEN_T);
+	//glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);//x坐标生成算法
+	//glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);//y坐标生成算法
+	//glTexGenfv(GL_S, GL_OBJECT_LINEAR, plane_s);//告诉这个算法，用这个平面计算距离，生成x的纹理坐标
+	//glTexGenfv(GL_T, GL_OBJECT_LINEAR, plane_t);
 
-	glGenTextures(1, &m_textureObject);//获得纹理对象名称
+	/*glGenTextures(1, &m_1D);
+	glBindTexture(GL_TEXTURE_1D, m_1D);
+	glTexImage1D(GL_TEXTURE_1D, 0,
+		GL_RGBA, image.GetWidth(),
+		0, GL_RGBA, GL_UNSIGNED_BYTE,
+		image.GetImage());
+	glGenerateMipmap(GL_TEXTURE_1D);
+	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);*/
+
+
+	glActiveTexture(GL_TEXTURE0);//使用纹理单元0
+	glEnable(GL_TEXTURE_2D);//激活纹理单元。这是2D纹理，还有1D纹理，如果1D 2D同时启用，会优先使用2D
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);//该纹理单元里的纹理 与之前的进行颜色叠加GL_MODULATE.还有GL_REPLACE替换之前的纹理单元颜色 GL_ADD GL_BLEND等
+	glGenTextures(1, &m_textureObject);//获得1个纹理对象名称。获得多个的话，需要传一个数组进去
 	glBindTexture(GL_TEXTURE_2D, m_textureObject);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,/*参数0是，0层，“层级贴图”的0层，近大远小*/
 		m_tga->GetWidth(),
 		m_tga->GetHeight(), 0,
 		GL_RGBA, GL_UNSIGNED_BYTE,
 		m_tga->GetImage());
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);//放大过滤器，点采样。图片放大时，像素使用周边最近的
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);//缩小过滤器，线性采样。图片放大时，像素使用周边的插值
+	glGenerateMipmap(GL_TEXTURE_2D);//OpenGL自动生成“层级渐远”图片出来
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);//放大过滤器，点采样。图片放大时，像素使用周边最近的。GL_NEAREST对0级贴图有效
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);//缩小过滤器，线性采样。图片放大时，像素使用周边的插值。GL_LINEAR对0级贴图有效
+
+	/*gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA,
+		m_tga->GetWidth(),
+		m_tga->GetHeight(),
+		GL_RGBA, GL_UNSIGNED_BYTE,
+		m_tga->GetImage());*///OpenGL工具函数，可以直接生成层级贴图
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);//GL_LINEAR_MIPMAP_LINEAR告诉OpenGL，放大过滤器，使用层级贴图
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	//glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 8);//"各向异性"，采样时取周围8个像素进行计算。梯形的远端更清晰。12 16都可以。通过glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, float& param);可以查询各向异性最多采用几个像素，可能是16，根据显卡不同
+	
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);//默认是GL_REPEAT，重复
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);//水平方向，镜像重复
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);//垂直方向，镜像重复
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);//水平方向，大于1的纹理坐标，用纹理边缘的像素铺过去
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);//垂直方向，
+
+	//GLfloat borderColor[] = {1,1,1,1};//写一个边框颜色白色。默认是黑。
+	//glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);//设置“边框颜色”，用于接下来的延伸色
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);//大于1的纹理坐标，用设定的边框色填充
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	
 
 	rotateAngle = 0;
+
+	m_zPos = 0;
+	m_zMoveNegative = true;
 
 	//glEnable(GL_DEPTH_TEST);//深度测试，近的挡住远的
 	//glDepthFunc(GL_LEQUAL);//深度测试小于等于算法。只有后者距离小于等于前者，就显示后者。距离摄像机的距离越小，越优先显示
@@ -219,6 +266,25 @@ void CGfxOpenGL::UpdateProjection(bool toggle) {
 }
 
 void CGfxOpenGL::Prepare(float dt) {
+	if (m_zMoveNegative) {
+		m_zPos -= 2.0f * dt;
+	}
+	else
+	{
+		m_zPos += 2.0f * dt;
+	}
+	if (m_zPos > 0) {
+		m_zPos = 0;
+		m_zMoveNegative = true;
+	}
+	if (m_zPos < -10) {
+		m_zPos = -10;
+		m_zMoveNegative = false;
+	}
+
+	cameraY = m_height;
+	cameraX = sin(DEG2RAD(m_angle));
+	cameraZ = cos(DEG2RAD(m_angle));
 }
 
 void CGfxOpenGL::Render() {
@@ -227,32 +293,40 @@ void CGfxOpenGL::Render() {
 	glLoadIdentity();
 
 	//gluLookAt(1.0f, 1.5f, 5.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-	gluLookAt(0.0f, 0.0f, 8.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+	gluLookAt(cameraX, cameraY, cameraZ, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);//前三个参数是相机位置。相机是看向原点的，中间三个参数
 
 	glColor3f(1, 1, 1);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);//4字节解包对齐。4位一组开始读。告诉OpenGL，每一行能够被4整除的位置，去取数据。OpenGL会忽略补的字节
 
-	glPixelZoom(1, 1);
-	glWindowPos2i(100, 100);
+	//glPixelZoom(1, 1);
+	//glWindowPos2i(100, 100);
 	//glBitmap(32,32,0,0,0,, bigLetterF);
 
-	glWindowPos2i(400, 200);
+	//glWindowPos2i(400, 200);
 	//glDrawPixels(m_tga->GetWidth(), m_tga->GetHeight(), GL_BGRA_EXT, GL_UNSIGNED_BYTE, m_tga->GetImage());
-	glDrawPixels(m_tga->GetWidth(), m_tga->GetHeight(), GL_RGBA, GL_UNSIGNED_BYTE, m_tga->GetImage());
+	//glDrawPixels(m_tga->GetWidth(), m_tga->GetHeight(), GL_RGBA, GL_UNSIGNED_BYTE, m_tga->GetImage());
 
 
 	glBindTexture(GL_TEXTURE_2D, m_textureObject);
+
+	//glMatrixMode(GL_TEXTURE);//选择纹理矩阵
+	//glLoadIdentity();
+	//glRotatef(10,0,0,1);//纹理矩阵绕z轴旋转10度
+	//glMatrixMode(GL_MODELVIEW);//选择模型视图矩阵 
+
+	//glTranslatef(0, 0, m_zPos);
 	glBegin(GL_QUADS);
-		glTexCoord2f(0.0f, 0.0f);
-		glVertex3f(-1.0f, -1.0f, 1.0f);
+		glTexCoord2f(0.0f, 0.0f);//该函数指定的是纹理单元0的纹理坐标
+		//glMultiTexCoord2f(GL_TEXTURE1, 0.0f, 0.0f);//指定纹理单元1的坐标也绑定到这个顶点上
+		glVertex3f(-1.0f, -1.0f, -1.0f);
 
-		glTexCoord2f(1.0f, 0.0f);
-		glVertex3f( 1.0f, -1.0f, 1.0f);
+		glTexCoord2f(1.0f, 0.0f);//扭曲的话 OpenGL会进行插值计算？
+		glVertex3f( 1.0f, -1.0f, -1.0f);
 
-		glTexCoord2f(1.0f, 1.0f);
-		glVertex3f(1.0f,  1.0f, 1.0f);
+		glTexCoord2f(3.0f, 3.0f);
+		glVertex3f(1.0f,  1.0f, -1.0f);
 
-		glTexCoord2f(0.0f, 1.0f);
-		glVertex3f(-1.0f, 1.0f, 1.0f);
+		glTexCoord2f(0.0f, 3.0f);
+		glVertex3f(-1.0f, 1.0f, -1.0f);
 	glEnd();
 }

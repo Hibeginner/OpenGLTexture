@@ -15,6 +15,7 @@ HDC g_HDC;
 HWND g_HWND;
 bool exiting = false;
 bool fullscreen = false;
+int mouseX, mouseY;
 
 long windowWidth = 800;
 long windowHeight = 600;
@@ -248,6 +249,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	static HGLRC hRC;//openGL绘制上下文
 	int height, width;
 
+	int oldMouseX;
+	int oldMouseY;
+
 	switch (message)
 	{
 	case WM_CREATE:
@@ -297,6 +301,25 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		EndPaint(hWnd, &ps);
 	}
 	break;
+	case WM_MOUSEMOVE:
+		oldMouseX = mouseX;
+		oldMouseY = mouseY;
+
+		mouseX = LOWORD(lParam);
+		mouseY = HIWORD(lParam);
+		/*if ((mouseX - oldMouseX) < 0) {
+			g_glRender->MoveCameraLeft();
+		}
+		if ((mouseX - oldMouseX) > 0) {
+			g_glRender->MoveCameraRight();
+		}
+		if ((mouseY - oldMouseY) < 0) {
+			g_glRender->MoveCameraDown();
+		}
+		if ((mouseY - oldMouseY) > 0) {
+			g_glRender->MoveCameraUp();
+		}*/
+		break;
 	case WM_KEYDOWN:
 		int fwKeys;
 		LPARAM keyData;
@@ -308,6 +331,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		case VK_ESCAPE:
 			PostQuitMessage(0);
+			break;
+		case VK_UP:
+			g_glRender->MoveCameraUp();
+			break;
+		case VK_DOWN:
+			g_glRender->MoveCameraDown();
+			break;
+		case VK_LEFT:
+			g_glRender->MoveCameraLeft();
+			break;
+		case VK_RIGHT:
+			g_glRender->MoveCameraRight();
 			break;
 		default:
 			break;

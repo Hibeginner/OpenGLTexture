@@ -1,3 +1,5 @@
 ﻿  CGfxOpenGL.cpp
+d:\vs_workspace\opengltexture\opengltexture\cgfxopengl.cpp(267): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+d:\vs_workspace\opengltexture\opengltexture\cgfxopengl.cpp(268): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
   OpenGLTexture.vcxproj -> D:\VS_Workspace\OpenGLTexture\Debug\OpenGLTexture.exe
   OpenGLTexture.vcxproj -> D:\VS_Workspace\OpenGLTexture\Debug\OpenGLTexture.pdb (Full PDB)
